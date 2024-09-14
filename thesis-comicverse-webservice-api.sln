@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.11.35222.181
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "thesis-comicverse-webservice-api", "thesis-comicverse-webservice-api.csproj", "{E3D5AB68-97E8-4B38-B195-4640F06E81DD}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{E3D5AB68-97E8-4B38-B195-4640F06E81DD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E3D5AB68-97E8-4B38-B195-4640F06E81DD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E3D5AB68-97E8-4B38-B195-4640F06E81DD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E3D5AB68-97E8-4B38-B195-4640F06E81DD}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {2CEA5E6F-CC76-4455-ADF3-7F02827A3E82}
+	EndGlobalSection
+EndGlobal
