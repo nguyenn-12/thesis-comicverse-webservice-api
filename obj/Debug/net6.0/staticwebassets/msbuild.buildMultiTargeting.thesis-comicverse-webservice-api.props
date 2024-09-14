@@ -1,0 +1,3 @@
+﻿<Project>
+  <Import Project="..\build\thesis-comicverse-webservice-api.props" />
+</Project>
