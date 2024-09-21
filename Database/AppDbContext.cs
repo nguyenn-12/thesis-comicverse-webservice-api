@@ -5,9 +5,11 @@ namespace thesis_comicverse_webservice_api.Database
 {
     public class AppDbContext : DbContext
     {
-        public DbSet<Product>? Products { get; set; }
-
         protected readonly IConfiguration _configuration;
+        public DbSet<Product>? Products { get; set; }
+        public DbSet<User>? Users { get; set; }
+
+
 
         public AppDbContext(IConfiguration configuration)
         {

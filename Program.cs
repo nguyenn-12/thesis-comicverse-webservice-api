@@ -1,3 +1,6 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 using thesis_comicverse_webservice_api.Database;
 using thesis_comicverse_webservice_api.Repositories;
 using thesis_comicverse_webservice_api.Services;
@@ -13,6 +16,7 @@ namespace thesis_comicverse_webservice_api
             // Add services to the container.
             builder.Services.AddScoped<IFileServices, FileServices>();
             builder.Services.AddScoped<IProductRepository, ProductRepository>();
+            builder.Services.AddScoped<IUserRepository, UserRepository>();
             builder.Services.AddDbContext<AppDbContext>();
             builder.Services.AddCors(options =>
             {
@@ -20,13 +24,29 @@ namespace thesis_comicverse_webservice_api
             });
 
             builder.Services.AddControllers();
-            // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
+            builder.Services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            }).AddJwtBearer(options =>
+            {
+                options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    ValidIssuer = builder.Configuration["Jwt:Issuer"],
+                    ValidAudience = builder.Configuration["Jwt:Audience"],
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
+                };
+            });
 
             var app = builder.Build();
-            //app.Logger.LogInformation("111111111111111");
 
+            app.UseAuthentication();
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {

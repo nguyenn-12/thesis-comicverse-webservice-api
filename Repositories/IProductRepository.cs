@@ -74,7 +74,7 @@ namespace thesis_comicverse_webservice_api.Repositories
 
                 // Do something
                 _context.Products!.Add(product);
-
+                //_context.
                 _context.SaveChanges();
             }
             catch (Exception ex)
