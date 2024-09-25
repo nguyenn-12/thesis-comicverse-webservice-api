@@ -15,7 +15,7 @@ namespace thesis_comicverse_webservice_api
 
             // Add services to the container.
             builder.Services.AddScoped<IFileServices, FileServices>();
-            builder.Services.AddScoped<IProductRepository, ProductRepository>();
+            builder.Services.AddScoped<IComicRepository, ComicRepository>();
             builder.Services.AddScoped<IUserRepository, UserRepository>();
             builder.Services.AddDbContext<AppDbContext>();
             builder.Services.AddCors(options =>

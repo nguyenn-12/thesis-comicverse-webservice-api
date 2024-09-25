@@ -6,7 +6,7 @@ namespace thesis_comicverse_webservice_api.Database
     public class AppDbContext : DbContext
     {
         protected readonly IConfiguration _configuration;
-        public DbSet<Product>? Products { get; set; }
+        public DbSet<Comic>? Comic { get; set; }
         public DbSet<User>? Users { get; set; }
 
 

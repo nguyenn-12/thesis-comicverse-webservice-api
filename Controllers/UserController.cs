@@ -20,42 +20,6 @@ namespace thesis_comicverse_webservice_api.Controllers
             _userRepository = userRepository;
         }
 
-        [HttpPost]
-        [Route("register")]
-        public async Task<IActionResult> Register([FromBody] RegisterDTO registInfor)
-        {
-            try
-            {
-
-                _logger.LogInformation("Register a user");
-
-                var registeredUser = await _userRepository.Register(registInfor);
-
-                return Ok(registeredUser);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
-        }
-
-        [HttpPost]
-        [Route("login")]
-        public async Task<IActionResult> Login([FromBody] LoginDTO loginInfor)
-        {
-            try
-            {
-                _logger.LogInformation("Logging in user");
-
-                var loggedInUser = await _userRepository.Login(loginInfor);
-
-                return Ok(loggedInUser);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
-        }
 
         [Authorize]
         [HttpGet("{id}")]
