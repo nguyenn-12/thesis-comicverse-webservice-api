@@ -25,9 +25,9 @@ namespace thesis_comicverse_webservice_api.Repositories
     {
         private readonly AppDbContext _dbcontext;
 
-        private readonly ILogger<ProductRepository> _logger;
+        private readonly ILogger<ComicRepository> _logger;
         private readonly IConfiguration _configuration;
-        public UserRepository(AppDbContext dbcontext, ILogger<ProductRepository> logger, IConfiguration configuration)
+        public UserRepository(AppDbContext dbcontext, ILogger<ComicRepository> logger, IConfiguration configuration)
         {
             _dbcontext = dbcontext;
             _logger = logger;
@@ -89,7 +89,8 @@ namespace thesis_comicverse_webservice_api.Repositories
             {
                 if (_dbcontext.Users == null) throw new ArgumentNullException(nameof(_dbcontext.Users));
 
-                var user = await _dbcontext.Users.FirstOrDefaultAsync(u => u.userName == loginForm.username && u.hashedPassword == loginForm.password);
+                var user = await _dbcontext.Users.FirstOrDefaultAsync(u => (u.userName == loginForm.username && u.hashedPassword == loginForm.password) ||
+                                                                           (u.email == loginForm.username && u.hashedPassword == loginForm.password));
 
                 //_logger.LogInformation($"")
                 if (user == null) _logger.Log(LogLevel.Information, $"User {loginForm.username} failed to log in at {DateTime.UtcNow.ToLongTimeString()}");
@@ -101,7 +102,7 @@ namespace thesis_comicverse_webservice_api.Repositories
                         new Claim(JwtRegisteredClaimNames.Sub, _configuration["Jwt:Subject"]),
                         new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                         new Claim("userId", user.userId.ToString()),
-                        new Claim("email", user.email.ToString()),
+                        new Claim("email", user.email!.ToString() ?? "userName", user.userName!.ToString()),
                     };
 
                     var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
