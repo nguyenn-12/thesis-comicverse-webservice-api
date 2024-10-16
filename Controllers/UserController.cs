@@ -21,7 +21,8 @@ namespace thesis_comicverse_webservice_api.Controllers
         }
 
 
-        [Authorize]
+        //[Authorize]
+        [Authorize(Roles = "Admin")]
         [HttpGet("{id}")]
         public async Task<IActionResult> GetUserById(int id)
         {

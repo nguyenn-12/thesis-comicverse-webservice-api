@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using thesis_comicverse_webservice_api.DTOs.AuthenticationDTO;
 using thesis_comicverse_webservice_api.Repositories;
 
@@ -19,6 +20,14 @@ namespace thesis_comicverse_webservice_api.Controllers
             _userRepository = userRepository;
         }
 
+        [HttpGet, Authorize]
+        [Route("get-me")]
+        public ActionResult<string> GetMe()
+        {
+            var userName = _userRepository.GetMyName();
+            return Ok(userName);
+        }
+
         [HttpPost]
         [Route("register")]
         public async Task<IActionResult> Register([FromBody] RegisterDTO registInfor)
@@ -31,9 +40,9 @@ namespace thesis_comicverse_webservice_api.Controllers
 
                 return Ok(registeredUser);
             }
-            catch (Exception ex)
+            catch
             {
-                return BadRequest(ex.Message);
+                throw;
             }
         }
 
@@ -49,10 +58,11 @@ namespace thesis_comicverse_webservice_api.Controllers
 
                 return Ok(loggedInUser);
             }
-            catch (Exception ex)
+            catch
             {
-                return BadRequest(ex.Message);
+                throw;
             }
         }
+
     }
 }

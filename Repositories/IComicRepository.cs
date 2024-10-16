@@ -7,10 +7,11 @@ namespace thesis_comicverse_webservice_api.Repositories
 {
     public interface IComicRepository
     {
-        void AddComic(Comic comic);
-        void DeleteComic(int id);
         List<Comic> GetAllComics();
         Comic GetComicById(int id);
+
+        void AddComic(Comic comic);
+        void DeleteComic(int id);
         void UpdateComic(Comic comic);
     }
 

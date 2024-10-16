@@ -4,6 +4,7 @@ using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 using thesis_comicverse_webservice_api.Database;
 using thesis_comicverse_webservice_api.DTOs.AuthenticationDTO;
@@ -18,7 +19,7 @@ namespace thesis_comicverse_webservice_api.Repositories
 
         Task<KeyValuePair<string, User>> Login(LoginDTO loginInfor);
         Task<KeyValuePair<string, User>> Register(RegisterDTO registInfor);
-
+        string GetMyName();
     }
 
     public class UserRepository : IUserRepository
@@ -27,11 +28,14 @@ namespace thesis_comicverse_webservice_api.Repositories
 
         private readonly ILogger<ComicRepository> _logger;
         private readonly IConfiguration _configuration;
-        public UserRepository(AppDbContext dbcontext, ILogger<ComicRepository> logger, IConfiguration configuration)
+        private readonly IHttpContextAccessor _httpContextAccessor;
+
+        public UserRepository(AppDbContext dbcontext, ILogger<ComicRepository> logger, IConfiguration configuration, IHttpContextAccessor httpContextAccessor)
         {
             _dbcontext = dbcontext;
             _logger = logger;
             _configuration = configuration;
+            _httpContextAccessor = httpContextAccessor;
         }
 
 
@@ -93,31 +97,19 @@ namespace thesis_comicverse_webservice_api.Repositories
                                                                            (u.email == loginForm.username && u.hashedPassword == loginForm.password));
 
                 //_logger.LogInformation($"")
-                if (user == null) _logger.Log(LogLevel.Information, $"User {loginForm.username} failed to log in at {DateTime.UtcNow.ToLongTimeString()}");
+                if (user == null)
+                {
+                    _logger.LogError($"User {loginForm.username} failed to log in at {DateTime.UtcNow.ToLongTimeString()}");
+                    throw new ArgumentNullException(nameof(user));
+                }
 
                 if (user != null)
                 {
-                    var claims = new[]
-                    {
-                        new Claim(JwtRegisteredClaimNames.Sub, _configuration["Jwt:Subject"]),
-                        new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                        new Claim("userId", user.userId.ToString()),
-                        new Claim("email", user.email!.ToString() ?? "userName", user.userName!.ToString()),
-                    };
+                    string jwtToken = CreateToken(user);
 
-                    var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
-                    var signIn = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-                    var token = new JwtSecurityToken(
-                        _configuration["Jwt:Issuer"],
-                        _configuration["Jwt:Audience"],
-                        claims,
-                        expires: DateTime.UtcNow.AddDays(1),
-                        signingCredentials: signIn
-                    );
-                    string tokenString = new JwtSecurityTokenHandler().WriteToken(token);
                     _logger.Log(LogLevel.Information, $"User {user.userName} logged in at {DateTime.UtcNow.ToLongTimeString()}");
 
-                    return new KeyValuePair<string, User>(tokenString, user);
+                    return new KeyValuePair<string, User>(jwtToken, user);
                 }
                 else
                 {
@@ -125,9 +117,9 @@ namespace thesis_comicverse_webservice_api.Repositories
                 }
 
             }
-            catch (Exception ex)
+            catch
             {
-                throw new Exception($"Couldn't retrieve users: {ex.Message}");
+                throw;
             }
 
         }
@@ -139,7 +131,7 @@ namespace thesis_comicverse_webservice_api.Repositories
             {
                 User existUser = GetUserByNameAsync(registInfor.username!).Result;
                 _logger.LogInformation("...................");
-                if (existUser != null) throw new Exception("User already exists");
+                if (existUser != null) throw new ApplicationException("User already exists");
 
                 User newUser = new User
                 {
@@ -185,6 +177,108 @@ namespace thesis_comicverse_webservice_api.Repositories
             catch (Exception ex)
             {
                 throw new Exception($"Couldn't retrieve users: {ex.Message}");
+            }
+        }
+
+        public string GetMyName()
+        {
+            var result = string.Empty;
+            if (_httpContextAccessor.HttpContext != null)
+            {
+                result = _httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.Name);
+            }
+            return result;
+        }
+
+        private string CreateToken(User user)
+        {
+            try
+            {
+                var claims = new[]
+                {
+                    new Claim(JwtRegisteredClaimNames.Sub, _configuration["Jwt:Subject"]),
+                    new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                    new Claim("userId", user.userId.ToString()),
+                    new Claim("email", user.email!.ToString() ?? "userName", user.userName!.ToString()),
+                    new Claim(ClaimTypes.Role, user.role!)
+                };
+
+                var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
+                var signIn = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+                var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);
+                var token = new JwtSecurityToken(
+                    _configuration["Jwt:Issuer"],
+                    _configuration["Jwt:Audience"],
+                    claims,
+                    expires: DateTime.UtcNow.AddHours(12),
+                    signingCredentials: signIn
+                );
+
+                string tokenString = new JwtSecurityTokenHandler().WriteToken(token);
+
+                return tokenString;
+            }
+            catch
+            {
+                throw;
+            }
+        }
+
+        //private RefreshToken GenerateRefreshToken()
+        //{
+        //    var refreshToken = new RefreshToken
+        //    {
+        //        Token = Convert.ToBase64String(RandomNumberGenerator.GetBytes(64)),
+        //        Expires = DateTime.Now.AddDays(7),
+        //        Created = DateTime.Now
+        //    };
+
+        //    return refreshToken;
+        //}
+
+        //private void SetRefreshToken(RefreshToken newRefreshToken)
+        //{
+        //    var cookieOptions = new CookieOptions
+        //    {
+        //        HttpOnly = true,
+        //        Expires = newRefreshToken.Expires
+        //    };
+        //    Response.Cookies.Append("refreshToken", newRefreshToken.Token, cookieOptions);
+
+        //    user.RefreshToken = newRefreshToken.Token;
+        //    user.TokenCreated = newRefreshToken.Created;
+        //    user.TokenExpires = newRefreshToken.Expires;
+        //}
+
+        private void CreatePasswordHash(string password, out byte[] passwordHash, out byte[] passwordSalt)
+        {
+            try
+            {
+                using (var hmac = new HMACSHA512())
+                {
+                    passwordSalt = hmac.Key;
+                    passwordHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(password));
+                }
+            }
+            catch
+            {
+                throw;
+            }
+        }
+
+        private bool VerifyPasswordHash(string password, byte[] passwordHash, byte[] passwordSalt)
+        {
+            try
+            {
+                using (var hmac = new HMACSHA512(passwordSalt))
+                {
+                    var computedHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(password));
+                    return computedHash.SequenceEqual(passwordHash);
+                }
+            }
+            catch
+            {
+                throw;
             }
         }
 
