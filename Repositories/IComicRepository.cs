@@ -7,8 +7,8 @@ namespace thesis_comicverse_webservice_api.Repositories
 {
     public interface IComicRepository
     {
-        List<Comic> GetAllComics();
-        Comic GetComicById(int id);
+        Task<List<Comic>> GetAllComics();
+        Task<Comic> GetComicByIdAsync(int id);
 
         void AddComic(Comic comic);
         void DeleteComic(int id);
@@ -26,16 +26,15 @@ namespace thesis_comicverse_webservice_api.Repositories
             _logger = logger;
         }
 
-        public List<Comic> GetAllComics()
+        public async Task<List<Comic>> GetAllComics()
         {
             try
             {
-                //Condition
                 if (_context.Comic == null) throw new ArgumentNullException(nameof(_context.Comic));
 
-                _logger.LogInformation("aaaaaaaaaaaaaaa {DT}", DateTime.UtcNow.ToLongTimeString());
-                // Return
-                return _context.Comic.ToList();
+                var comics = await _context.Comic.ToListAsync();
+
+                return comics;
             }
             catch (Exception ex)
             {
@@ -43,20 +42,16 @@ namespace thesis_comicverse_webservice_api.Repositories
             }
         }
 
-        public Comic GetComicById(int id)
+        public async Task<Comic> GetComicByIdAsync(int id)
         {
             try
             {
-                //Condition
                 if (_context.Comic == null) throw new ArgumentNullException(nameof(_context.Comic));
 
-                // Do something
-                var comic = _context.Comic!.FirstOrDefault(p => p.ComicId == id);
+                var comic = await _context.Comic!.FirstOrDefaultAsync(p => p.ComicId == id);
 
-                // Verify
                 if (comic == null) throw new ArgumentNullException(nameof(comic));
 
-                // Return
                 return comic;
             }
             catch (Exception ex)

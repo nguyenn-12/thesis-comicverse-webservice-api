@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using thesis_comicverse_webservice_api.DTOs.AuthenticationDTO;
+using thesis_comicverse_webservice_api.Models;
 using thesis_comicverse_webservice_api.Repositories;
 
 namespace thesis_comicverse_webservice_api.Controllers
@@ -22,7 +23,7 @@ namespace thesis_comicverse_webservice_api.Controllers
 
 
         //[Authorize]
-        [Authorize(Roles = "Admin")]
+        //[Authorize(Roles = "Admin")]
         [HttpGet("{id}")]
         public async Task<IActionResult> GetUserById(int id)
         {
@@ -39,6 +40,7 @@ namespace thesis_comicverse_webservice_api.Controllers
         }
 
 
+        //[Authorize(Roles = "Admin")]
         [HttpGet]
         public async Task<IActionResult> GetAllUsers()
         {
@@ -53,5 +55,36 @@ namespace thesis_comicverse_webservice_api.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteUser(int id)
+        {
+            try
+            {
+                _logger.LogInformation($"Deleting a user by id {id}");
+                var userWithId = await _userRepository.DeleteUserAsync(id);
+                return Ok(userWithId);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpPut("update-user")]
+        public async Task<IActionResult> UpdateUser([FromBody] User user)
+        {
+            try
+            {
+                _logger.LogInformation("Updating a user");
+                var updatedUser = await _userRepository.UpdateUserAsync(user);
+                return Ok(updatedUser);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
     }
 }

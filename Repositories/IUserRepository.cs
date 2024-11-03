@@ -16,7 +16,8 @@ namespace thesis_comicverse_webservice_api.Repositories
     {
         Task<List<User>> GetAllUsersAsync();
         Task<User> GetUserByIdAsync(int id);
-
+        Task<User> DeleteUserAsync(int id);
+        Task<User> UpdateUserAsync(User user);
         Task<KeyValuePair<string, User>> Login(LoginDTO loginInfor);
         Task<KeyValuePair<string, User>> Register(RegisterDTO registInfor);
         string GetMyName();
@@ -86,6 +87,43 @@ namespace thesis_comicverse_webservice_api.Repositories
             }
         }
 
+        public async Task<User> DeleteUserAsync(int id)
+        {
+            try
+            {
+                if (_dbcontext.Users == null) throw new ArgumentNullException(nameof(_dbcontext.Users));
+
+                var user = await _dbcontext.Users.FirstOrDefaultAsync(u => u.userId == id);
+                if (user == null) throw new ArgumentNullException(nameof(user));
+
+                _dbcontext.Users.Remove(user);
+                await _dbcontext.SaveChangesAsync();
+
+                return user;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Couldn't retrieve users: {ex.Message}");
+            }
+        }
+
+        public async Task<User> UpdateUserAsync(User user)
+        {
+            try
+            {
+                if (user == null) throw new ArgumentNullException(nameof(user));
+                if (_dbcontext.Users == null) throw new ArgumentNullException(nameof(_dbcontext.Users));
+
+                _dbcontext.Users.Update(user);
+                await _dbcontext.SaveChangesAsync();
+
+                return user;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Couldn't retrieve users: {ex.Message}");
+            }
+        }
 
         public async Task<KeyValuePair<string, User>> Login(LoginDTO loginForm)
         {
@@ -224,31 +262,6 @@ namespace thesis_comicverse_webservice_api.Repositories
             }
         }
 
-        //private RefreshToken GenerateRefreshToken()
-        //{
-        //    var refreshToken = new RefreshToken
-        //    {
-        //        Token = Convert.ToBase64String(RandomNumberGenerator.GetBytes(64)),
-        //        Expires = DateTime.Now.AddDays(7),
-        //        Created = DateTime.Now
-        //    };
-
-        //    return refreshToken;
-        //}
-
-        //private void SetRefreshToken(RefreshToken newRefreshToken)
-        //{
-        //    var cookieOptions = new CookieOptions
-        //    {
-        //        HttpOnly = true,
-        //        Expires = newRefreshToken.Expires
-        //    };
-        //    Response.Cookies.Append("refreshToken", newRefreshToken.Token, cookieOptions);
-
-        //    user.RefreshToken = newRefreshToken.Token;
-        //    user.TokenCreated = newRefreshToken.Created;
-        //    user.TokenExpires = newRefreshToken.Expires;
-        //}
 
         private void CreatePasswordHash(string password, out byte[] passwordHash, out byte[] passwordSalt)
         {

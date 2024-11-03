@@ -20,6 +20,7 @@ namespace thesis_comicverse_webservice_api
             builder.Services.AddScoped<IFileServices, FileServices>();
             builder.Services.AddScoped<IComicRepository, ComicRepository>();
             builder.Services.AddScoped<IUserRepository, UserRepository>();
+            builder.Services.AddScoped<IAssignment, AssignmentRepository>();
             builder.Services.AddDbContext<AppDbContext>();
             builder.Services.AddHttpContextAccessor();
             builder.Services.AddCors(options =>

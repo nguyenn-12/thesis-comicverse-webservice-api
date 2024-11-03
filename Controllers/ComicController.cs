@@ -19,12 +19,12 @@ namespace thesis_comicverse_webservice_api.Controllers
         }
 
         [HttpGet]
-        public IActionResult GetAllComics()
+        public async Task<IActionResult> GetAllComics()
         {
             try
             {
                 _logger.LogInformation("Getting all comics");
-                var comics = _comicRepository.GetAllComics();
+                var comics = await _comicRepository.GetAllComics();
                 return Ok(comics);
             }
             catch
@@ -38,7 +38,7 @@ namespace thesis_comicverse_webservice_api.Controllers
         {
             try
             {
-                var comic = _comicRepository.GetComicById(id);
+                var comic = _comicRepository.GetComicByIdAsync(id);
                 if (comic == null)
                 {
                     return NotFound();
@@ -86,7 +86,7 @@ namespace thesis_comicverse_webservice_api.Controllers
                     return BadRequest();
                 }
 
-                var existingComic = _comicRepository.GetComicById(id);
+                var existingComic = _comicRepository.GetComicByIdAsync(id);
                 if (existingComic == null)
                 {
                     return NotFound();
@@ -107,7 +107,7 @@ namespace thesis_comicverse_webservice_api.Controllers
             try
             {
 
-                var existingComic = _comicRepository.GetComicById(id);
+                var existingComic = _comicRepository.GetComicByIdAsync(id);
                 if (existingComic == null)
                 {
                     return NotFound();

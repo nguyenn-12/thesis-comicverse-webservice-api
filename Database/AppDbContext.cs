@@ -8,6 +8,9 @@ namespace thesis_comicverse_webservice_api.Database
         protected readonly IConfiguration _configuration;
         public DbSet<Comic>? Comic { get; set; }
         public DbSet<User>? Users { get; set; }
+        public DbSet<Models.Task>? Task { get; set; }
+        public DbSet<Assign>? Assign { get; set; }
+
 
 
 
