@@ -176,12 +176,12 @@ namespace thesis_comicverse_webservice_api.Repositories
                     userName = registInfor.username,
                     email = registInfor.email,
                     hashedPassword = registInfor.password,
-                    firstName = "",
-                    lastName = "",
-                    phoneNumber = "",
+                    firstName = registInfor.firstName ?? "",
+                    lastName = registInfor.lastName ?? "",
+                    phoneNumber = registInfor.phoneNumber ?? "",
                     status = "Active",
                     createdAt = DateTime.UtcNow,
-                    role = "User"
+                    role = registInfor.role ?? "User"
                 };
                 _logger.LogInformation(JsonConvert.SerializeObject(newUser));
                 var addedUser = await AddUser(newUser);
