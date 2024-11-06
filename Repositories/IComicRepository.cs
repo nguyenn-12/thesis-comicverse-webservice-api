@@ -68,7 +68,7 @@ namespace thesis_comicverse_webservice_api.Repositories
                 if (comic == null) throw new ArgumentNullException(nameof(comic));
 
 
-                _logger.LogInformation($"comic {comic.ComicId}__{comic.title}__{comic.price}");
+                _logger.LogInformation($"comic {comic.ComicId}__{comic.comicTitle}");
 
                 // Do something
                 _context.Comic!.Add(comic);

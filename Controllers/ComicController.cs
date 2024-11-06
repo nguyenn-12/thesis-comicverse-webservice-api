@@ -34,11 +34,11 @@ namespace thesis_comicverse_webservice_api.Controllers
         }
 
         [HttpGet("{id}")]
-        public IActionResult GetComicById(int id)
+        public async Task<IActionResult> GetComicById(int id)
         {
             try
             {
-                var comic = _comicRepository.GetComicByIdAsync(id);
+                var comic = await _comicRepository.GetComicByIdAsync(id);
                 if (comic == null)
                 {
                     return NotFound();
@@ -60,13 +60,16 @@ namespace thesis_comicverse_webservice_api.Controllers
 
                 var data = new Comic()
                 {
-                    title = request.title,
-                    price = request.price
+                    comicTitle = request.comicTitle,
+                    localhostURL = request.localhostURL,
+                    remoteURL = request.remoteURL,
+                    releaseDate = request.releaseDate,
+                    language = request.language,
+                    categoryID = request.categoryID,
+                    Description = request.Description
                 };
 
                 _comicRepository.AddComic(data);
-
-
 
                 return CreatedAtAction(nameof(GetComicById), new { id = data.ComicId }, data);
             }
@@ -77,14 +80,25 @@ namespace thesis_comicverse_webservice_api.Controllers
         }
 
         [HttpPut("{id}")]
-        public IActionResult UpdateComic(int id, [FromBody] Comic comic)
+        public IActionResult UpdateComic(int id, [FromBody] ComicDTO request)
         {
             try
             {
-                if (comic == null || id != comic.ComicId)
+                if (request == null || id != request.ComicId)
                 {
                     return BadRequest();
                 }
+
+                var data = new Comic()
+                {
+                    comicTitle = request.comicTitle,
+                    localhostURL = request.localhostURL,
+                    remoteURL = request.remoteURL,
+                    releaseDate = request.releaseDate,
+                    language = request.language,
+                    categoryID = request.categoryID,
+                    Description = request.Description
+                };
 
                 var existingComic = _comicRepository.GetComicByIdAsync(id);
                 if (existingComic == null)
@@ -92,7 +106,7 @@ namespace thesis_comicverse_webservice_api.Controllers
                     return NotFound();
                 }
 
-                _comicRepository.UpdateComic(comic);
+                _comicRepository.UpdateComic(data);
                 return NoContent();
             }
             catch

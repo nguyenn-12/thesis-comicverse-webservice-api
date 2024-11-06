@@ -38,6 +38,7 @@ namespace thesis_comicverse_webservice_api.Repositories
                     select new
                     {
                         TaskID = task.taskID,
+                        TaskName = task.taskName,
                         AssignedTo = user.firstName + " " + user.lastName,
                         TaskStatus = task.status,
                         Priority = task.priority,
