@@ -17,5 +17,7 @@ namespace thesis_comicverse_webservice_api.DTOs.RequestDTO
         public string? language { get; set; }
         public int? categoryID { get; set; }
         public string? Description { get; set; }
+        public string? avatarURL { get; set; }
+
     }
 }

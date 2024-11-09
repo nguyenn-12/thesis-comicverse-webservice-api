@@ -1,7 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using System.Reflection.Metadata;
 using thesis_comicverse_webservice_api.DTOs.RequestDTO;
 using thesis_comicverse_webservice_api.Models;
 using thesis_comicverse_webservice_api.Repositories;
+using thesis_comicverse_webservice_api.Services;
 
 namespace thesis_comicverse_webservice_api.Controllers
 {
@@ -10,11 +13,13 @@ namespace thesis_comicverse_webservice_api.Controllers
     public class ComicController : ControllerBase
     {
         private readonly ILogger<ComicController> _logger;
+        private readonly IFileServices _fileService;
         private readonly IComicRepository _comicRepository;
 
-        public ComicController(ILogger<ComicController> logger, IComicRepository comicRepository)
+        public ComicController(ILogger<ComicController> logger, IFileServices fileServices, IComicRepository comicRepository)
         {
             _logger = logger;
+            _fileService = fileServices;
             _comicRepository = comicRepository;
         }
 
@@ -135,5 +140,33 @@ namespace thesis_comicverse_webservice_api.Controllers
                 throw;
             }
         }
+
+
+        [HttpGet("render-pdf")]
+        public async Task<IActionResult> RenderPDF(IFormFile file)
+        {
+            try
+            {
+                using (var memoryStream = new MemoryStream())
+                {
+                    await file.CopyToAsync(memoryStream);
+
+                    //var document = new Document
+                    //{
+                    //    FileName = file.FileName,
+                    //};
+                    var ContentType = file.ContentType;
+                    var Data = memoryStream.ToArray();
+
+
+                    return File(Data, ContentType);
+                }
+            }
+            catch
+            {
+                throw;
+            }
+        }
+
     }
 }
