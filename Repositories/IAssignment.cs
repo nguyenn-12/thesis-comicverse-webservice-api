@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using thesis_comicverse_webservice_api.Database;
 using thesis_comicverse_webservice_api.Models;
 
@@ -7,6 +8,7 @@ namespace thesis_comicverse_webservice_api.Repositories
     public interface IAssignment
     {
         Task<IEnumerable<object>> GetAllAssignmentsAsync();
+        Task<Assign> DeleteAssignmentAsync(int id);
     }
 
     public class AssignmentRepository : IAssignment
@@ -37,6 +39,7 @@ namespace thesis_comicverse_webservice_api.Repositories
                     join user in _context.Users on assign.userId equals user.userId
                     select new
                     {
+                        AssignID = assign.AssignID,
                         TaskID = task.taskID,
                         TaskName = task.taskName,
                         AssignedTo = user.firstName + " " + user.lastName,
@@ -61,5 +64,31 @@ namespace thesis_comicverse_webservice_api.Repositories
         //{
         //    throw new NotImplementedException();
         //}
+
+        public async Task<Assign> DeleteAssignmentAsync(int id)
+        {
+            try
+            {
+                // mappping the id to the assign table
+
+                var taskWasAssign = await _context.Assign.FirstOrDefaultAsync(a => a.AssignID == id);
+
+                if (taskWasAssign == null)
+                {
+                    return null;
+                }
+
+                if (taskWasAssign != null) {
+                    _context.Assign.Remove(taskWasAssign);
+                    await _context.SaveChangesAsync();
+                }
+
+                return taskWasAssign;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Couldn't delete assignment: {ex.Message}");
+            }
+        }
     }
 }

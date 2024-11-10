@@ -32,5 +32,23 @@ namespace thesis_comicverse_webservice_api.Controllers
                 throw;
             }
         }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteAssignment(int id)
+        {
+            try
+            {
+                var assignment = await _assignmentRepository.DeleteAssignmentAsync(id);
+                if (assignment == null)
+                {
+                    return NotFound();
+                }
+                return Ok(assignment);
+            }
+            catch
+            {
+                throw;
+            }
+        }
     }
 }

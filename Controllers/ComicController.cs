@@ -121,17 +121,17 @@ namespace thesis_comicverse_webservice_api.Controllers
         }
 
         [HttpDelete("{id}")]
-        public IActionResult DeleteComic(int id)
+        public async Task<IActionResult> DeleteComic(int id)
         {
             try
             {
 
-                var existingComic = _comicRepository.GetComicByIdAsync(id);
+                var existingComic = await _comicRepository.GetComicByIdAsync(id);
                 if (existingComic == null)
                 {
                     return NotFound();
                 }
-
+                
                 _comicRepository.DeleteComic(id);
                 return NoContent();
             }
